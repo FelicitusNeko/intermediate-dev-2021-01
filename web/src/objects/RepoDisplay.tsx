@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import React, { useState, useEffect } from 'react';
+import { Switch, Route } from 'react-router-dom';
 import { Repo } from '../typings/Repo';
+import { RepoList } from './RepoList';
 
 function RepoDisplay() {
   const [repos, setRepos] = useState<Repo[] | null>(null);
@@ -84,19 +86,15 @@ function RepoDisplay() {
     );
   } else if (repos) {
     return (
-      <>
-        There are {repos.length} repos in the request
-        <br />
-        <button onClick={onResetClick}>Reload data</button>
-      </>
+      <Switch>
+        <Route path="/">
+          <RepoList repos={repos} />
+        </Route>
+      </Switch>
     );
   } else {
     return <>Loading</>;
   }
 }
-
-// const RepoDisplay: React.FC = () => {
-//   return <>Hello World</>;
-// };
 
 export { RepoDisplay };
