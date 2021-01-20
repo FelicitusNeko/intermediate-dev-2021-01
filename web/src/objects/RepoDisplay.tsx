@@ -23,8 +23,25 @@ function RepoDisplay() {
         'http://localhost:4000/repos'
       );
 
+      // Create a shallow copy of the response data
+      const repoResponse = repoRequest.data.slice();
+
+      // Sort the response data based on creation date (latest first)
+      repoResponse.sort((a: Repo, b: Repo) => {
+        const aDate = new Date(a.created_at);
+        const bDate = new Date(b.created_at);
+
+        if (aDate > bDate) {
+          return -1;
+        } else if (aDate < bDate) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
       // Store it for use
-      setRepos(repoRequest.data);
+      setRepos(repoResponse);
     } catch (e) {
       if (axios.isAxiosError(e)) {
         // If the error is with Axios, get error information from it
