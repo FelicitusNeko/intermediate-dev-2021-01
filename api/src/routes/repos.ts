@@ -1,12 +1,16 @@
 import { Router, Request, Response } from 'express';
+import { Repo } from '../typings/Repo';
 
 export const repos = Router();
 
 repos.get('/', async (_: Request, res: Response) => {
   res.header('Cache-Control', 'no-store');
 
-  res.status(200);
+  // Retrieve info from repos JSON, filtering out any forks
+  let repos: Repo[] = require('../../data/repos.json')
+    .filter((repo: Repo) => !repo.fork);
 
-  // TODO: See README.md Task (A). Return repo data here. You’ve got this!
-  res.json([]);
+  // Output repo data
+  res.status(200);
+  res.json(repos);
 });
