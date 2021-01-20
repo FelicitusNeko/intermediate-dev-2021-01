@@ -1,35 +1,47 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Repo } from '../typings/Repo';
-
-let loading = false;
 
 function RepoDisplay() {
   const [repos, setRepos] = useState<Repo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getRepos = async () => {
     // Prevent multiple requests from happening at the same time
     // Also prevent repos from being retrieved if they already exist (clear them out first)
-    if (loading || repos) {
+    if (loading || repos || error) {
       return;
     }
-    loading = true;
 
-    // eslint-disable-next-line no-console
-    console.debug('getRepos called');
-    setRepos(null);
-    setError(null);
+    // Indicate that we're loading data, so getRepos doesn't get called again until we're done
+    setLoading(true);
 
     try {
+      // Retrieve data from API
       const repoRequest = await axios.get<Repo[]>(
         'http://localhost:4000/repos'
       );
+
+      // Store it for use
       setRepos(repoRequest.data);
     } catch (e) {
-      setError(e);
+      if (axios.isAxiosError(e)) {
+        // If the error is with Axios, get error information from it
+        const eAxios = e as AxiosError;
+        setError(
+          eAxios.response
+            ? `${eAxios.response.status} ${eAxios.response.statusText} (${eAxios.message})`
+            : eAxios.message
+        );
+      } else {
+        // If not, get generic information from error
+        setError((e as Error).message);
+      }
+      // Oops, something bad happened
     } finally {
-      loading = false;
+      // Pass or fail, we can call getRepos again
+      setLoading(false);
     }
   };
 
@@ -40,10 +52,27 @@ function RepoDisplay() {
     }
   });
 
+  const onResetClick = () => {
+    setRepos(null);
+    setError(null);
+  };
+
   if (error) {
-    return <>Error: {error}</>;
+    return (
+      <>
+        Error: {error}
+        <br />
+        <button onClick={onResetClick}>Try again</button>
+      </>
+    );
   } else if (repos) {
-    return <>There are {repos.length} repos in the request</>;
+    return (
+      <>
+        There are {repos.length} repos in the request
+        <br />
+        <button onClick={onResetClick}>Reload data</button>
+      </>
+    );
   } else {
     return <>Loading</>;
   }
