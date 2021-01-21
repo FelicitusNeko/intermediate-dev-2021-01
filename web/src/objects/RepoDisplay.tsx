@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { Repo } from '../typings/Repo';
+import { RepoDetails } from './RepoDetails';
 import { RepoList } from './RepoList';
 
 function RepoDisplay() {
@@ -87,6 +88,9 @@ function RepoDisplay() {
   } else if (repos) {
     return (
       <Switch>
+        <Route path="/repo/:index">
+          <RepoDetails repos={repos} />
+        </Route>
         <Route path="/">
           <RepoList repos={repos} />
         </Route>
