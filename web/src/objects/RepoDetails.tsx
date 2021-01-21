@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
-import { Link, /*Redirect,*/ useParams } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import { Link, useParams } from 'react-router-dom';
 import { Commit } from '../typings/Commit';
 import { Repo } from '../typings/Repo';
 
@@ -51,7 +52,6 @@ function RepoDetails({ repos }: RepoDetailsProps) {
 
     // Signal that we are loading the readme
     setLoadingReadme(true);
-    setReadme('Loading readme...');
 
     try {
       // Retrieve the readme from the repo
@@ -97,11 +97,20 @@ function RepoDetails({ repos }: RepoDetailsProps) {
     }
 
     // Determine what we're displaying for commit data
-    let commitOutput = 'Loading last commit...';
+    let commitOutput = <>Loading last commit...</>;
     if (typeof commit === 'string') {
-      commitOutput = commit;
+      // If the commit is a string (probably an error), just output the string
+      commitOutput = <>{commit}</>;
     } else if (commit) {
-      commitOutput = `Last commit by ${commit.commit.author.name} on ${commit.commit.author.date}: ${commit.commit.message}`;
+      // If the commit is a Commit object, output last commit details
+      commitOutput = (
+        <>
+          Last commit by <b>{commit.commit.author.name}</b> on{' '}
+          <b>{commit.commit.author.date}</b>:
+          <br />
+          {commit.commit.message}
+        </>
+      );
     }
 
     return (
@@ -111,7 +120,9 @@ function RepoDetails({ repos }: RepoDetailsProps) {
           {repo.language} – {repo.forks_count} fork(s)
         </p>
         <p>{commitOutput}</p>
-        <p>{readme}</p>
+        <p>
+          <ReactMarkdown>{readme ?? 'Loading readme...'}</ReactMarkdown>
+        </p>
         <p>
           <Link to="/">Go back</Link>
         </p>
