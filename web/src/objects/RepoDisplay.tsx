@@ -78,6 +78,7 @@ function RepoDisplay() {
   };
 
   if (error) {
+    // If there is an API error, display it and provide a button to try again
     return (
       <>
         Error: {error}
@@ -86,6 +87,7 @@ function RepoDisplay() {
       </>
     );
   } else if (repos) {
+    // If there is repo data, display the regular page body
     return (
       <Switch>
         <Route path="/repo/:index">
@@ -93,10 +95,13 @@ function RepoDisplay() {
         </Route>
         <Route path="/">
           <RepoList repos={repos} />
+          <br />
+          <button onClick={onResetClick}>Reload</button>
         </Route>
       </Switch>
     );
   } else {
+    // Otherwise, we are waiting on repo data, so display loading message
     return <>Loading</>;
   }
 }
